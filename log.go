@@ -5,15 +5,14 @@ import (
 	"io/ioutil"
 	"os"
 	"fmt"
-	"runtime"
-	"path/filepath"
 )
 
-var trace = log.New(ioutil.Discard, "T: ", log.Ldate|log.Ltime)
-var info = log.New(os.Stderr, "I: ", log.Ldate|log.Ltime)
-var warning = log.New(os.Stderr, "W: ", log.Ldate|log.Ltime)
-var error = log.New(os.Stderr, "E: ", log.Ldate|log.Ltime)
-var request = log.New(os.Stderr, "R: ", log.Ldate|log.Ltime)
+var trace = log.New(ioutil.Discard, "T: ", log.Ldate|log.Ltime|log.Lshortfile)
+var info = log.New(os.Stderr, "I: ", log.Ldate|log.Ltime|log.Lshortfile)
+var warning = log.New(os.Stderr, "W: ", log.Ldate|log.Ltime|log.Lshortfile)
+var error = log.New(os.Stderr, "E: ", log.Ldate|log.Ltime|log.Lshortfile)
+var slack = log.New(os.Stderr, "SLACK: ", log.Ldate|log.Ltime|log.Lshortfile)
+var request = log.New(os.Stderr, "R: ", log.Ldate|log.Ltime|log.Lshortfile)
 
 func Errorf(format string, v ...interface{}) {
 	error.Print(f(format, v...))
@@ -59,19 +58,18 @@ func Panicf(format string, v ...interface{}) {
 	error.Panic(f(format, v...))
 }
 
+func Slackf(format string, v ...interface{}) {
+	slack.Print(f(format, v...))
+}
+
+func SlackLn(v ...interface{}) {
+	slack.Print(ln(v...))
+}
+
 func f(format string, v ...interface{}) string {
 	return ln(fmt.Sprintf(format, v...))
 }
 
 func ln(a ...interface{}) string {
-
-	_, file, line, _ := runtime.Caller(2)
-
-	filename := filepath.Base(file)
-	directory := filepath.Dir(file)
-	directoryName := filepath.Base(directory)
-
-	//f := runtime.FuncForPC(pc)
-	info := fmt.Sprintln(a...)
-	return fmt.Sprintf("%s%c%s:%d: %v", directoryName, filepath.Separator, filename, line, info)
+	return fmt.Sprintln(a...)
 }
