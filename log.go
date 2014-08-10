@@ -12,7 +12,7 @@ var info = log.New(os.Stderr, "I: ", log.Ldate|log.Ltime|log.Lshortfile)
 var warning = log.New(os.Stderr, "W: ", log.Ldate|log.Ltime|log.Lshortfile)
 var error = log.New(os.Stderr, "E: ", log.Ldate|log.Ltime|log.Lshortfile)
 var slack = log.New(os.Stderr, "SLACK: ", log.Ldate|log.Ltime|log.Lshortfile)
-var request = log.New(os.Stderr, "R: ", log.Ldate|log.Ltime|log.Lshortfile)
+var request = log.New(os.Stderr, "R: ", log.Ldate|log.Ltime)
 
 var callDepth int = 2
 
