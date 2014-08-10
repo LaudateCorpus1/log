@@ -14,28 +14,30 @@ var error = log.New(os.Stderr, "E: ", log.Ldate|log.Ltime|log.Lshortfile)
 var slack = log.New(os.Stderr, "SLACK: ", log.Ldate|log.Ltime|log.Lshortfile)
 var request = log.New(os.Stderr, "R: ", log.Ldate|log.Ltime|log.Lshortfile)
 
+var callDepth int = 2
+
 func Errorf(format string, v ...interface{}) {
-	error.Print(f(format, v...))
+	error.Output(callDepth,f(format, v...))
 }
 
 func Errorln(v ...interface{}) {
-	error.Print(ln(v...))
+	error.Output(callDepth,ln(v...))
 }
 
 func Warningf(format string, v ...interface{}) {
-	warning.Print(f(format, v...))
+	warning.Output(callDepth,f(format, v...))
 }
 
 func Warningln(v ...interface{}) {
-	warning.Print(ln(v...))
+	warning.Output(callDepth,ln(v...))
 }
 
 func Infof(format string, v ...interface{}) {
-	info.Print(f(format, v...))
+	info.Output(callDepth,f(format, v...))
 }
 
 func Infoln(v ...interface{}) {
-	info.Print(ln(v...))
+	info.Output(callDepth,ln(v...))
 }
 
 func Requestln(v ...interface{}) {
@@ -43,27 +45,31 @@ func Requestln(v ...interface{}) {
 }
 
 func Tracef(format string, v ...interface{}) {
-	trace.Print(f(format, v...))
+	trace.Output(callDepth,f(format, v...))
 }
 
 func Traceln(v ...interface{}) {
-	trace.Print(ln(v...))
+	trace.Output(callDepth,ln(v...))
 }
 
 func Panicln(v ...interface{}) {
-	error.Panic(ln(v...))
+	string := ln(v...)
+	trace.Output(callDepth, string)
+	panic(string)
 }
 
 func Panicf(format string, v ...interface{}) {
-	error.Panic(f(format, v...))
+	string := f(format,v...)
+	trace.Output(callDepth, string)
+	panic(string)
 }
 
 func Slackf(format string, v ...interface{}) {
-	slack.Print(f(format, v...))
+	slack.Output(callDepth,f(format, v...))
 }
 
 func SlackLn(v ...interface{}) {
-	slack.Print(ln(v...))
+	slack.Output(callDepth,ln(v...))
 }
 
 func f(format string, v ...interface{}) string {
