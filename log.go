@@ -10,7 +10,7 @@ import (
 var trace = log.New(ioutil.Discard, "T: ", log.Ldate|log.Ltime|log.Lshortfile)
 var info = log.New(os.Stdout, "I: ", log.Ldate|log.Ltime|log.Lshortfile)
 var warning = log.New(os.Stdout, "W: ", log.Ldate|log.Ltime|log.Lshortfile)
-var error = log.New(os.Stdout, "E: ", log.Ldate|log.Ltime|log.Lshortfile)
+var error = log.New(os.Stderr, "E: ", log.Ldate|log.Ltime|log.Lshortfile)
 var slack = log.New(os.Stdout, "SLACK: ", log.Ldate|log.Ltime|log.Lshortfile)
 var request = log.New(os.Stdout, "R: ", log.Ldate|log.Ltime)
 
