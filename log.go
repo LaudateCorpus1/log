@@ -7,28 +7,30 @@ import (
 )
 
 type Logger struct {
-	info    *log.Logger
-	warning *log.Logger
-	error   *log.Logger
-	slack   *log.Logger
-	request *log.Logger
+	info      *log.Logger
+	warning   *log.Logger
+	error     *log.Logger
+	slack     *log.Logger
+	request   *log.Logger
+	callDepth int
 }
 
-func New(prefix string) *Logger {
+func New(prefix string, depth int) *Logger {
 
 	l := &Logger{
-		info:    log.New(os.Stdout, "", log.Ldate|log.Ltime|log.Lshortfile),
-		warning: log.New(os.Stdout, "", log.Ldate|log.Ltime|log.Lshortfile),
-		error:   log.New(os.Stderr, "", log.Ldate|log.Ltime|log.Lshortfile),
-		slack:   log.New(os.Stdout, "", log.Ldate|log.Ltime|log.Lshortfile),
-		request: log.New(os.Stdout, "", log.Ldate|log.Ltime),
+		info:      log.New(os.Stdout, "", log.Ldate|log.Ltime|log.Lshortfile),
+		warning:   log.New(os.Stdout, "", log.Ldate|log.Ltime|log.Lshortfile),
+		error:     log.New(os.Stderr, "", log.Ldate|log.Ltime|log.Lshortfile),
+		slack:     log.New(os.Stdout, "", log.Ldate|log.Ltime|log.Lshortfile),
+		request:   log.New(os.Stdout, "", log.Ldate|log.Ltime),
+		callDepth: depth,
 	}
 
 	l.SetPrefix(prefix)
 	return l
 }
 
-var DefaultLogger = New("")
+var defaultLogger = New("", 3)
 
 type BLogger interface {
 	Errorf(format string, v ...interface{})
@@ -44,8 +46,6 @@ type BLogger interface {
 	SlackLn(v ...interface{})
 }
 
-var callDepth int = 2
-
 func (this *Logger) SetPrefix(prefix string) {
 
 	if prefix != "" {
@@ -60,27 +60,27 @@ func (this *Logger) SetPrefix(prefix string) {
 }
 
 func (this *Logger) Errorf(format string, v ...interface{}) {
-	this.error.Output(callDepth, f(format, v...))
+	this.error.Output(this.callDepth, f(format, v...))
 }
 
 func (this *Logger) Errorln(v ...interface{}) {
-	this.error.Output(callDepth, ln(v...))
+	this.error.Output(this.callDepth, ln(v...))
 }
 
 func (this *Logger) Warningf(format string, v ...interface{}) {
-	this.warning.Output(callDepth, f(format, v...))
+	this.warning.Output(this.callDepth, f(format, v...))
 }
 
 func (this *Logger) Warningln(v ...interface{}) {
-	this.warning.Output(callDepth, ln(v...))
+	this.warning.Output(this.callDepth, ln(v...))
 }
 
 func (this *Logger) Infof(format string, v ...interface{}) {
-	this.info.Output(callDepth, f(format, v...))
+	this.info.Output(this.callDepth, f(format, v...))
 }
 
 func (this *Logger) Infoln(v ...interface{}) {
-	this.info.Output(callDepth, ln(v...))
+	this.info.Output(this.callDepth, ln(v...))
 }
 
 func (this *Logger) Requestln(v ...interface{}) {
@@ -89,67 +89,71 @@ func (this *Logger) Requestln(v ...interface{}) {
 
 func (this *Logger) Panicln(v ...interface{}) {
 	string := ln(v...)
-	this.error.Output(callDepth, string)
+	this.error.Output(this.callDepth, string)
 	panic(string)
 }
 
 func (this *Logger) Panicf(format string, v ...interface{}) {
 	string := f(format, v...)
-	this.error.Output(callDepth, string)
+	this.error.Output(this.callDepth, string)
 	panic(string)
 }
 
 func (this *Logger) Slackf(format string, v ...interface{}) {
-	this.slack.Output(callDepth, f(format, v...))
+	this.slack.Output(this.callDepth, f(format, v...))
 }
 
 func (this *Logger) SlackLn(v ...interface{}) {
-	this.slack.Output(callDepth, ln(v...))
+	this.slack.Output(this.callDepth, ln(v...))
 }
 
 //Globals
 func Errorf(format string, v ...interface{}) {
-	DefaultLogger.Errorf(format, v...)
+	defaultLogger.Errorf(format, v...)
 }
 
 func Errorln(v ...interface{}) {
-	DefaultLogger.Errorln(v...)
+	defaultLogger.Errorln(v...)
 }
 
 func Warningf(format string, v ...interface{}) {
-	DefaultLogger.Warningf(format, v...)
+	defaultLogger.Warningf(format, v...)
 }
 
 func Warningln(v ...interface{}) {
-	DefaultLogger.Warningln(v...)
+	defaultLogger.Warningln(v...)
 }
 
 func Infof(format string, v ...interface{}) {
-	DefaultLogger.Infof(format, v...)
+	defaultLogger.Infof(format, v...)
 }
 
 func Infoln(v ...interface{}) {
-	DefaultLogger.Infoln(v...)
+	defaultLogger.Infoln(v...)
 }
 
 func Requestln(v ...interface{}) {
-	DefaultLogger.Requestln(v...)
+	defaultLogger.Requestln(v...)
 }
 
 func Panicln(v ...interface{}) {
-	DefaultLogger.Panicln(v...)
+	defaultLogger.Panicln(v...)
 }
 
 func Panicf(format string, v ...interface{}) {
-	DefaultLogger.Panicf(format, v...)
+	defaultLogger.Panicf(format, v...)
 }
 
 func Slackf(format string, v ...interface{}) {
-	DefaultLogger.Slackf(format, v...)
+	defaultLogger.Slackf(format, v...)
 }
 
 func SlackLn(v ...interface{}) {
-	DefaultLogger.SlackLn(v...)
+	defaultLogger.SlackLn(v...)
+}
+
+func SetPrefix(p string) {
+	defaultLogger.SetPrefix(p)
 }
 
 func f(format string, v ...interface{}) string {
