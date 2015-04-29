@@ -1,29 +1,41 @@
 package log
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"os"
+	"time"
 )
 
+type StructuredLog struct {
+	Duration   time.Duration
+	RemoteAddr string
+	Referer    string
+	Status     int
+}
+
 type Logger struct {
-	info      *log.Logger
-	warning   *log.Logger
-	error     *log.Logger
-	slack     *log.Logger
-	request   *log.Logger
-	callDepth int
+	info           *log.Logger
+	warning        *log.Logger
+	error          *log.Logger
+	slack          *log.Logger
+	request        *log.Logger
+	requestEncoder *json.Encoder
+	callDepth      int
 }
 
 func New(prefix string, depth int) *Logger {
 
+	requestLogger := log.New(os.Stdout, "", log.Ldate|log.Ltime)
 	l := &Logger{
-		info:      log.New(os.Stdout, "", log.Ldate|log.Ltime|log.Lshortfile),
-		warning:   log.New(os.Stdout, "", log.Ldate|log.Ltime|log.Lshortfile),
-		error:     log.New(os.Stderr, "", log.Ldate|log.Ltime|log.Lshortfile),
-		slack:     log.New(os.Stdout, "", log.Ldate|log.Ltime|log.Lshortfile),
-		request:   log.New(os.Stdout, "", log.Ldate|log.Ltime),
-		callDepth: depth,
+		info:           log.New(os.Stdout, "", log.Ldate|log.Ltime|log.Lshortfile),
+		warning:        log.New(os.Stdout, "", log.Ldate|log.Ltime|log.Lshortfile),
+		error:          log.New(os.Stderr, "", log.Ldate|log.Ltime|log.Lshortfile),
+		slack:          log.New(os.Stdout, "", log.Ldate|log.Ltime|log.Lshortfile),
+		request:        requestLogger,
+		requestEncoder: json.NewEncoder(os.Stdout),
+		callDepth:      depth,
 	}
 
 	l.SetPrefix(prefix)
@@ -87,6 +99,10 @@ func (this *Logger) Requestln(v ...interface{}) {
 	this.request.Println(v...)
 }
 
+func (this *Logger) RequestEncoder() *json.Encoder {
+	return this.requestEncoder
+}
+
 func (this *Logger) Panicln(v ...interface{}) {
 	string := ln(v...)
 	this.error.Output(this.callDepth, string)
@@ -134,6 +150,10 @@ func Infoln(v ...interface{}) {
 
 func Requestln(v ...interface{}) {
 	defaultLogger.Requestln(v...)
+}
+
+func RequestObject(obj StructuredLog) {
+	defaultLogger.requestEncoder.Encode(obj)
 }
 
 func Panicln(v ...interface{}) {
