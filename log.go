@@ -9,6 +9,7 @@ import (
 )
 
 type StructuredLog struct {
+	Path       string
 	Duration   time.Duration
 	RemoteAddr string
 	Referer    string
