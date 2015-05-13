@@ -26,6 +26,10 @@ type Logger struct {
 	callDepth      int
 }
 
+func (this *Logger) ErrLogger() *log.Logger {
+	return this.error
+}
+
 func New(prefix string, depth int) *Logger {
 
 	requestLogger := log.New(os.Stdout, "", log.Ldate|log.Ltime)
@@ -125,6 +129,10 @@ func (this *Logger) SlackLn(v ...interface{}) {
 }
 
 //Globals
+func DefaultLogger() *Logger {
+	return defaultLogger
+}
+
 func Errorf(format string, v ...interface{}) {
 	defaultLogger.Errorf(format, v...)
 }
