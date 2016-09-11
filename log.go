@@ -8,45 +8,6 @@ import (
 	"time"
 )
 
-type StructuredLog struct {
-	Path       string
-	Duration   time.Duration
-	RemoteAddr string
-	Referer    string
-	Status     int
-}
-
-type Logger struct {
-	info           *log.Logger
-	warning        *log.Logger
-	error          *log.Logger
-	slack          *log.Logger
-	request        *log.Logger
-	requestEncoder *json.Encoder
-	callDepth      int
-}
-
-func (this *Logger) ErrLogger() *log.Logger {
-	return this.error
-}
-
-func New(prefix string, depth int) *Logger {
-
-	requestLogger := log.New(os.Stdout, "", log.Ldate|log.Ltime)
-	l := &Logger{
-		info:           log.New(os.Stdout, "", log.Ldate|log.Ltime|log.Lshortfile),
-		warning:        log.New(os.Stdout, "", log.Ldate|log.Ltime|log.Lshortfile),
-		error:          log.New(os.Stderr, "", log.Ldate|log.Ltime|log.Lshortfile),
-		slack:          log.New(os.Stdout, "", log.Ldate|log.Ltime|log.Lshortfile),
-		request:        requestLogger,
-		requestEncoder: json.NewEncoder(os.Stdout),
-		callDepth:      depth,
-	}
-
-	l.SetPrefix(prefix)
-	return l
-}
-
 var defaultLogger = New("", 3)
 
 type BLogger interface {
@@ -61,6 +22,52 @@ type BLogger interface {
 	Panicf(format string, v ...interface{})
 	Slackf(format string, v ...interface{})
 	SlackLn(v ...interface{})
+}
+
+type StructuredLog struct {
+	Path       string
+	Duration   time.Duration
+	RemoteAddr string
+	Referer    string
+	Status     int
+}
+
+type Logger struct {
+	info    *log.Logger
+	warning *log.Logger
+	error   *log.Logger
+	slack   *log.Logger
+	request *log.Logger
+
+	requestEncoder *json.Encoder
+	callDepth      int
+}
+
+func New(prefix string, depth int) *Logger {
+
+	stdOut := NewBufferedWriter(os.Stdout)
+	stdErr := NewBufferedWriter(os.Stderr)
+
+	stdOut.Start()
+	stdErr.Start()
+
+	l := &Logger{
+		info:    log.New(stdOut, "", log.Ldate|log.Ltime|log.Lshortfile),
+		warning: log.New(stdOut, "", log.Ldate|log.Ltime|log.Lshortfile),
+		error:   log.New(stdErr, "", log.Ldate|log.Ltime|log.Lshortfile),
+		slack:   log.New(stdOut, "", log.Ldate|log.Ltime|log.Lshortfile),
+		request: log.New(stdOut, "", log.Ldate|log.Ltime),
+
+		requestEncoder: json.NewEncoder(os.Stdout),
+		callDepth:      depth,
+	}
+
+	l.SetPrefix(prefix)
+	return l
+}
+
+func (this *Logger) ErrLogger() *log.Logger {
+	return this.error
 }
 
 func (this *Logger) SetPrefix(prefix string) {

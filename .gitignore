@@ -3,6 +3,10 @@
 *.a
 *.so
 
+#vim
+*.swo
+*.swp
+
 # Folders
 _obj
 _test
