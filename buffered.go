@@ -7,7 +7,7 @@ import (
 
 var BufferFull = fmt.Errorf("Async Logging Buffer Is Full")
 
-const BufferSize = 1000
+const BufferSize = 10000
 
 func NewBufferedWriter(writer io.Writer) *BufferedWriter {
 	bw := &BufferedWriter{
