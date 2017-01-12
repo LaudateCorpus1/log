@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"time"
+	"io"
 )
 
 var defaultLogger = New("", 3)
@@ -64,6 +65,14 @@ func New(prefix string, depth int) *Logger {
 
 	l.SetPrefix(prefix)
 	return l
+}
+
+func (this *Logger) SetAllOutput(w io.Writer) {
+	this.info.SetOutput(w)
+	this.warning.SetOutput(w)
+	this.error.SetOutput(w)
+	this.slack.SetOutput(w)
+	this.request.SetOutput(w)
 }
 
 func (this *Logger) ErrLogger() *log.Logger {
