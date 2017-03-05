@@ -45,11 +45,8 @@ type Logger struct {
 
 func New(prefix string, depth int) *Logger {
 
-	stdOut := NewBufferedWriter(os.Stdout)
-	stdErr := NewBufferedWriter(os.Stderr)
-
-	stdOut.Start()
-	stdErr.Start()
+	stdOut := os.Stdout
+	stdErr := os.Stderr
 
 	l := &Logger{
 		info:    log.New(stdOut, "", log.Ldate|log.Ltime|log.Lshortfile),
