@@ -49,11 +49,11 @@ func New(prefix string, depth int) *Logger {
 	stdErr := os.Stderr
 
 	l := &Logger{
-		info:    log.New(stdOut, "", log.Ldate|log.Ltime|log.Lshortfile),
-		warning: log.New(stdOut, "", log.Ldate|log.Ltime|log.Lshortfile),
-		error:   log.New(stdErr, "", log.Ldate|log.Ltime|log.Lshortfile),
-		slack:   log.New(stdOut, "", log.Ldate|log.Ltime|log.Lshortfile),
-		request: log.New(stdOut, "", log.Ldate|log.Ltime),
+		info:    log.New(stdOut, "", log.Ldate|log.Ltime|log.Lmicroseconds|log.Lshortfile),
+		warning: log.New(stdOut, "", log.Ldate|log.Ltime|log.Lmicroseconds|log.Lshortfile),
+		error:   log.New(stdErr, "", log.Ldate|log.Ltime|log.Lmicroseconds|log.Lshortfile),
+		slack:   log.New(stdOut, "", log.Ldate|log.Ltime|log.Lmicroseconds|log.Lshortfile),
+		request: log.New(stdOut, "", log.Ldate|log.Ltime|log.Lmicroseconds),
 
 		requestEncoder: json.NewEncoder(os.Stdout),
 		callDepth:      depth,
